@@ -1,7 +1,6 @@
 // ==UserScript==
 // @name           Github Child Shortcut
 // @namespace      githubChildShortcut
-// @match https://*.github.com/*
 // ==/UserScript==
 
 //update on AJAX request instead of page load (so updates on "p" press)
@@ -81,8 +80,14 @@ function waitForKeyElements (
 }
 
 
-
-waitForKeyElements (".sha.js-selectable-text", get_data);
+if(/https:\/\/*.github.com\/.*\/commit/.test(document.URL)){
+    waitForKeyElements (".sha.js-selectable-text", get_data);
+}
+else{
+    //if not on commit page, clear repo and commit id variables
+    localStorage.setItem("repo_path",null);
+    localStorage.setItem("current_id",null);
+}
 
 
 function get_data(){
@@ -112,12 +117,15 @@ localStorage.setItem("repo_path",repo_path);
 localStorage.setItem("current_id",current_id);
 }
 
-//when key pressed, if the key is c, navigate to the child
-(function(){
-document.addEventListener('keydown', function(e) {
-  if (e.keyCode == 67) {
-    url = localStorage.getItem(localStorage.getItem("current_id")).replace("https://github.com","");
-    window.location = url;
-  }
-}, false);
-})();
+//only run if on commit page
+if(/https:\/\/*.github.com\/.*\/commit/.test(document.URL)){
+    //when key pressed, if the key is c, navigate to the child
+    (function(){
+    document.addEventListener('keydown', function(e) {
+      if (e.keyCode == 67) {
+        url = localStorage.getItem(localStorage.getItem("current_id")).replace("https://github.com","");
+        window.location = url;
+      }
+    }, false);
+    })();
+}
